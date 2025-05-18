@@ -1,15 +1,16 @@
 import app from "./app.js";
 import config from "./app/config/index.js";
+import { cornjbos } from "./app/utlis/corns.js";
+import discordClient from "./app/utlis/discordClient.js";
 import prisma from "./app/utlis/prisma.js";
-import discordClient from './app/utlis/discordClient.js';
 let server;
 
 main().catch((err) => console.log(err));
 
 async function main() {
   try {
-    const client = discordClient();
-    await client.login(config.discord_token);
+    cornjbos();
+    await discordClient.login(config.discord_token);
     console.log("🦾bot connected successfully");
     const response = await prisma.$queryRaw`SELECT 1`;
     console.log("✅ Database connection successful!", response);
