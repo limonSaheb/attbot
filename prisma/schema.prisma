@@ -13,3 +13,6 @@ model LabbaikBot {
   createdAt DateTime @default(now())
 }
 
+model AttendenceThread {
+  id String @id @unique @default(uuid()) @db.Uuid
+}
