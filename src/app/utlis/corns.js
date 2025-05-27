@@ -3,7 +3,7 @@ import { AttendenceUtils } from "../modules/attendence/attendence.utils.js";
 
 export function cornjbos() {
   corn.schedule(
-    "0 9 * * *",
+    "*1/ * * * *",
     async () => {
       try {
         await AttendenceUtils.createAttendenceThread();

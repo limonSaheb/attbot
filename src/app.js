@@ -1,7 +1,6 @@
 import express from "express";
 const app = express();
 import bodyParser from "body-parser";
-import router from "./app/routes/index.js";
 import prisma from "./app/utlis/prisma.js";
 import globalErrorHandler from "./app/middleware/globalErrorHandler.js";
 import cookieParser from "cookie-parser";
@@ -20,9 +19,6 @@ app.get("/health", async (req, res) => {
     response,
   });
 });
-
-//api routes
-app.use("/api/v1", router);
 
 //global error
 app.use(globalErrorHandler);

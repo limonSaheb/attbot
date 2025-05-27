@@ -1,7 +1,8 @@
 import app from "./app.js";
+import { bootstrapDiscordBot } from "./app/bootstrap/discord.js";
 import config from "./app/config/index.js";
-import { cornjbos } from "./app/utlis/corns.js";
-import discordClient from "./app/utlis/discordClient.js";
+import { startDailyCheckIn } from "./app/jobs/checkInJobs.js";
+import { startDailyCheckOut } from "./app/jobs/checkOutJobs.js";
 import prisma from "./app/utlis/prisma.js";
 let server;
 
@@ -9,11 +10,12 @@ main().catch((err) => console.log(err));
 
 async function main() {
   try {
-    cornjbos();
-    await discordClient.login(config.discord_token);
+    await bootstrapDiscordBot();
     console.log("🦾bot connected successfully");
     const response = await prisma.$queryRaw`SELECT 1`;
     console.log("✅ Database connection successful!", response);
+    startDailyCheckIn();
+    startDailyCheckOut();
     server = app.listen(config.port, () => {
       console.log(`Server is Running http://localhost:${config.port}`);
     });

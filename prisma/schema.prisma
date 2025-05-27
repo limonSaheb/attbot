@@ -15,4 +15,25 @@ model LabbaikBot {
 
 model AttendenceThread {
   id String @id @unique @default(uuid()) @db.Uuid
+  msg String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  AttendenceReply AttendenceReply[]
+}
+
+model AttendenceReply {
+  id String @id @unique @default(uuid()) @db.Uuid
+  AttendenceThreadId String @db.Uuid
+  AttendenceThread AttendenceThread @relation(fields: [AttendenceThreadId], references: [id], onDelete: Cascade)
+  userName String
+  mood String
+  goal String
+  checkInTime DateTime @default(now())
+  workUpdate String?
+  checkOutTime DateTime?
+  earlyLeaveRequest String?
+  earlyLeaveReason String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
