@@ -12,7 +12,7 @@ import config from "../config/index.js";
 import { AttendenceService } from "../services/attendecne.service.js";
 
 export const startDailyCheckIn = () => {
-  cron.schedule("0 10 * * *", async () => {
+  cron.schedule("30 10 * * *", async () => {
     const channel = await discordClient.channels.fetch(
       config.attendence_channel_id
     );
