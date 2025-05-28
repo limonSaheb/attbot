@@ -13,24 +13,30 @@ import discordClient from "../utlis/discordClient.js";
 import config from "../config/index.js";
 
 export const startDailyCheckOut = () => {
-  cron.schedule("0 18 * * *", async () => {
-    const channel = await discordClient.channels.fetch(
-      config.attendence_channel_id
-    );
+  cron.schedule(
+    "0 18 * * *",
+    async () => {
+      const channel = await discordClient.channels.fetch(
+        config.attendence_channel_id
+      );
 
-    if (!channel) return console.error("Check-out channel not found!");
+      if (!channel) return console.error("Check-out channel not found!");
 
-    const button = new ButtonBuilder()
-      .setCustomId("checkOutButton")
-      .setLabel("Give Updates")
-      .setStyle(ButtonStyle.Primary);
+      const button = new ButtonBuilder()
+        .setCustomId("checkOutButton")
+        .setLabel("Give Updates")
+        .setStyle(ButtonStyle.Primary);
 
-    const row = new ActionRowBuilder().addComponents(button);
+      const row = new ActionRowBuilder().addComponents(button);
 
-    await channel.send({
-      content: "@everyone 🙌 Great work. It's time to give updates ✍️.",
-      components: [row],
-      allowedMentions: { parse: ["everyone"] },
-    });
-  });
+      await channel.send({
+        content: "@everyone 🙌 Great work. It's time to give updates ✍️.",
+        components: [row],
+        allowedMentions: { parse: ["everyone"] },
+      });
+    },
+    {
+      timezone: "Asia/Dhaka",
+    }
+  );
 };
