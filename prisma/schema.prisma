@@ -7,25 +7,25 @@ datasource db {
   url      = env("POSTGRES_DATABASE_URL")
 }
 
-model LabbaikBot {
+model labbaikBot {
   id        Int      @id @default(autoincrement())
   version   Int      @default(1)
   createdAt DateTime @default(now())
 }
 
-model AttendenceThread {
+model attendenceThread {
   id String @id @unique @default(uuid()) @db.Uuid
   msg String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  AttendenceReply AttendenceReply[]
+  attendenceReply attendenceReply[]
 }
 
-model AttendenceReply {
+model attendenceReply {
   id String @id @unique @default(uuid()) @db.Uuid
-  AttendenceThreadId String @db.Uuid
-  AttendenceThread AttendenceThread @relation(fields: [AttendenceThreadId], references: [id], onDelete: Cascade)
+  attendenceThreadId String @db.Uuid
+  attendenceThread attendenceThread @relation(fields: [attendenceThreadId], references: [id], onDelete: Cascade)
   userName String
   mood String
   goal String
