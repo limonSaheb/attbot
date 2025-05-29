@@ -1,27 +1,15 @@
+import { isDateToday } from "../utlis/commonUtils.js";
 import prisma from "../utlis/prisma.js";
 
 async function createAttendenceThread(payload) {
   try {
-    const now = new Date();
-    const todayStartUTC = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-    );
-    const tomorrowStartUTC = new Date(todayStartUTC);
-    tomorrowStartUTC.setUTCDate(todayStartUTC.getUTCDate() + 1);
-
     const checkThread = await prisma.attendenceThread.findFirst({
-      where: {
-        createdAt: {
-          gte: todayStartUTC, // >= start of today (UTC)
-          lt: tomorrowStartUTC, // < start of tomorrow (UTC)
-        },
-      },
       orderBy: {
         createdAt: "desc", // Get the latest thread if multiple exist
       },
     });
 
-    if (checkThread) {
+    if (checkThread && isDateToday(new Date(checkThread?.createdAt))) {
       console.log("Todays Thread already created!");
       return false;
     } else {
@@ -41,26 +29,17 @@ async function createAttendenceThread(payload) {
 async function recordAttendence(payload) {
   try {
     const { user, mood, goal } = payload;
-    const now = new Date();
-    const todayStartUTC = new Date(
-      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
-    );
-    const tomorrowStartUTC = new Date(todayStartUTC);
-    tomorrowStartUTC.setUTCDate(todayStartUTC.getUTCDate() + 1);
 
     const getThread = await prisma.attendenceThread.findFirst({
-      where: {
-        createdAt: {
-          gte: todayStartUTC, // >= start of today (UTC)
-          lt: tomorrowStartUTC, // < start of tomorrow (UTC)
-        },
-      },
       orderBy: {
-        createdAt: "desc", // Get the latest thread if multiple exist
+        createdAt: "desc",
       },
     });
 
-    if (!getThread) {
+    if (
+      !getThread ||
+      (getThread && !isDateToday(new Date(getThread?.createdAt)))
+    ) {
       console.log("no attendence thread found!");
       return false;
     }
