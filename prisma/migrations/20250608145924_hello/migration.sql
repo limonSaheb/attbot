@@ -1,23 +1,3 @@
-/*
-  Warnings:
-
-  - You are about to drop the `AttendenceReply` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `AttendenceThread` table. If the table is not empty, all the data it contains will be lost.
-  - You are about to drop the `LabbaikBot` table. If the table is not empty, all the data it contains will be lost.
-
-*/
--- DropForeignKey
-ALTER TABLE "AttendenceReply" DROP CONSTRAINT "AttendenceReply_AttendenceThreadId_fkey";
-
--- DropTable
-DROP TABLE "AttendenceReply";
-
--- DropTable
-DROP TABLE "AttendenceThread";
-
--- DropTable
-DROP TABLE "LabbaikBot";
-
 -- CreateTable
 CREATE TABLE "labbaikBot" (
     "id" SERIAL NOT NULL,
@@ -29,7 +9,7 @@ CREATE TABLE "labbaikBot" (
 
 -- CreateTable
 CREATE TABLE "attendenceThread" (
-    "id" UUID NOT NULL,
+    "id" SERIAL NOT NULL,
     "msg" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -39,8 +19,8 @@ CREATE TABLE "attendenceThread" (
 
 -- CreateTable
 CREATE TABLE "attendenceReply" (
-    "id" UUID NOT NULL,
-    "attendenceThreadId" UUID NOT NULL,
+    "id" SERIAL NOT NULL,
+    "attendenceThreadId" INTEGER NOT NULL,
     "userName" TEXT NOT NULL,
     "mood" TEXT NOT NULL,
     "goal" TEXT NOT NULL,
@@ -54,12 +34,6 @@ CREATE TABLE "attendenceReply" (
 
     CONSTRAINT "attendenceReply_pkey" PRIMARY KEY ("id")
 );
-
--- CreateIndex
-CREATE UNIQUE INDEX "attendenceThread_id_key" ON "attendenceThread"("id");
-
--- CreateIndex
-CREATE UNIQUE INDEX "attendenceReply_id_key" ON "attendenceReply"("id");
 
 -- AddForeignKey
 ALTER TABLE "attendenceReply" ADD CONSTRAINT "attendenceReply_attendenceThreadId_fkey" FOREIGN KEY ("attendenceThreadId") REFERENCES "attendenceThread"("id") ON DELETE CASCADE ON UPDATE CASCADE;
