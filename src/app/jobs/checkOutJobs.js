@@ -14,7 +14,7 @@ import config from "../config/index.js";
 
 export const startDailyCheckOut = () => {
   cron.schedule(
-    "0 18 * * *",
+    "*/1 * * * *",
     async () => {
       const channel = await discordClient.channels.fetch(
         config.attendence_channel_id

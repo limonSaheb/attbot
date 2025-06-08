@@ -14,7 +14,7 @@ model labbaikBot {
 }
 
 model attendenceThread {
-  id String @id @unique @default(uuid()) @db.Uuid
+  id Int @id @default(autoincrement())
   msg String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -23,8 +23,8 @@ model attendenceThread {
 }
 
 model attendenceReply {
-  id String @id @unique @default(uuid()) @db.Uuid
-  attendenceThreadId String @db.Uuid
+  id Int @id @default(autoincrement())
+  attendenceThreadId Int
   attendenceThread attendenceThread @relation(fields: [attendenceThreadId], references: [id], onDelete: Cascade)
   userName String
   mood String

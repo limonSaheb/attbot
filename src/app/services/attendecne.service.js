@@ -5,7 +5,7 @@ async function createAttendenceThread(payload) {
   try {
     const checkThread = await prisma.attendenceThread.findFirst({
       orderBy: {
-        createdAt: "desc", // Get the latest thread if multiple exist
+        id: "desc", // Get the latest thread if multiple exist
       },
     });
 
@@ -32,7 +32,7 @@ async function recordAttendence(payload) {
 
     const getThread = await prisma.attendenceThread.findFirst({
       orderBy: {
-        createdAt: "desc",
+        id: "desc",
       },
     });
 
