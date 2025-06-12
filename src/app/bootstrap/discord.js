@@ -109,7 +109,7 @@ export async function bootstrapDiscordBot() {
     ) {
       const mood = interaction.customId.split("_")[1];
       const goal = interaction.fields.getTextInputValue("goalInput");
-      const user = interaction.user.username;
+      const user = interaction.user.displayName;
       const timestamp = new Date().toLocaleString();
 
       const recordAttendence = await AttendenceService.recordAttendence({
