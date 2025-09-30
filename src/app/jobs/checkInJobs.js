@@ -6,7 +6,7 @@ import { attendenceView } from "../views/attendence.view.js";
 
 export const startDailyCheckIn = () => {
   cron.schedule(
-    "0 3 * * *",
+    "0 9 * * *",
     async () => {
       try {
         const channel = await discordClient.channels.fetch(
