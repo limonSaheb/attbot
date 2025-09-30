@@ -217,7 +217,7 @@ export async function bootstrapDiscordBot() {
 
       if (requestEarlyLeave) {
         const channel = await discordClient.channels.fetch(
-          config.attendence_channel_id
+          config.update_channel_id
         );
         if (!channel) return console.error("Check-out channel not found!");
 
