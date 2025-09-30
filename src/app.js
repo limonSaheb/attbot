@@ -5,11 +5,10 @@ import prisma from "./app/utlis/prisma.js";
 import globalErrorHandler from "./app/middleware/globalErrorHandler.js";
 import cookieParser from "cookie-parser";
 
-//MiddleWare
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json()); //Middleware body parser
+app.use(bodyParser.json());
 app.use(express.json());
-app.use(cookieParser()); // Middleware to parse cookies
+app.use(cookieParser());
 
 //test routes
 app.get("/health", async (req, res) => {
@@ -20,7 +19,6 @@ app.get("/health", async (req, res) => {
   });
 });
 
-//global error
 app.use(globalErrorHandler);
 
 export default app;

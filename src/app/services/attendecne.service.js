@@ -1,23 +1,39 @@
 import { isDateToday } from "../utlis/commonUtils.js";
 import prisma from "../utlis/prisma.js";
 
-async function createAttendenceThread(payload) {
+const now = new Date();
+const start = new Date(
+  Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0)
+);
+const end = new Date(
+  Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    23,
+    59,
+    59,
+    999
+  )
+);
+
+async function createAttendenceThread() {
   try {
-    const checkThread = await prisma.attendenceThread.findFirst({
-      orderBy: {
-        id: "desc", // Get the latest thread if multiple exist
+    const existingThread = await prisma.attendenceThread.findFirst({
+      where: {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
       },
+      orderBy: { createdAt: "desc" },
     });
 
-    if (checkThread && isDateToday(new Date(checkThread?.createdAt))) {
-      console.log("Todays Thread already created!");
+    if (existingThread) {
+      console.log("Todays attendence thread is already created.");
       return false;
     } else {
-      const createThread = await prisma.attendenceThread.create({
-        data: {
-          msg: "new attendence",
-        },
-      });
+      const createThread = await prisma.attendenceThread.create({ data: {} });
     }
     return true;
   } catch (error) {
@@ -28,42 +44,43 @@ async function createAttendenceThread(payload) {
 
 async function recordAttendence(payload) {
   try {
-    const { user, mood, goal } = payload;
+    const { user, mood } = payload;
 
-    const getThread = await prisma.attendenceThread.findFirst({
-      orderBy: {
-        id: "desc",
+    const existingThread = await prisma.attendenceThread.findFirst({
+      where: {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
       },
+      orderBy: { createdAt: "desc" },
     });
 
-    if (
-      !getThread ||
-      (getThread && !isDateToday(new Date(getThread?.createdAt)))
-    ) {
-      console.log("no attendence thread found!");
+    if (!existingThread) {
+      console.log("No attendence thread found!");
       return false;
     }
 
     const isAlreadyCheckedIn = await prisma.attendenceReply.findFirst({
       where: {
-        attendenceThreadId: getThread?.id,
+        attendenceThreadId: existingThread?.id,
         userName: user,
       },
     });
 
     if (isAlreadyCheckedIn) {
-      console.log("already checkedIn");
+      console.log("Already checked-in");
       return false;
     }
 
     const recordCheckIn = await prisma.attendenceReply.create({
       data: {
-        attendenceThreadId: getThread.id,
+        attendenceThreadId: existingThread?.id,
         userName: user,
-        mood,
-        goal,
+        mood: mood,
       },
     });
+
     return true;
   } catch (error) {
     console.log(error);
@@ -71,49 +88,59 @@ async function recordAttendence(payload) {
   }
 }
 
+async function createWorkUpdateThread() {
+  try {
+    const existingThread = await prisma.updateThread.findFirst({
+      where: {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (existingThread) {
+      console.log("Todays update thread is already created.");
+      return false;
+    } else {
+      const createThread = await prisma.updateThread.create({ data: {} });
+    }
+    return true;
+  } catch (error) {
+    console.log("There was an error!", error?.message);
+    return false;
+  }
+}
+
 async function recordWorkUpdates(payload) {
   const { updates, user } = payload;
-  const checkOutTime = new Date();
 
-  const startOfToday = new Date();
-  startOfToday.setHours(0, 0, 0, 0);
-
-  const endOfToday = new Date();
-  endOfToday.setHours(23, 59, 59, 999);
-
-  const getThread = await prisma.attendenceThread.findFirst({
+  const existingThread = await prisma.updateThread.findFirst({
     where: {
       createdAt: {
-        gte: startOfToday,
-        lte: endOfToday,
+        gte: start,
+        lte: end,
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
-  const isCheckedOut = await prisma.attendenceReply.findFirst({
+  const isCheckedOut = await prisma.updateReply.findFirst({
     where: {
-      attendenceThreadId: getThread?.id,
+      updateThreadId: existingThread?.id,
       userName: user,
     },
   });
 
-  if (isCheckedOut && isCheckedOut?.checkOutTime) {
-    const updateWorkUpdate = await prisma.attendenceReply.update({
-      where: {
-        id: isCheckedOut?.id,
-      },
+  if (isCheckedOut) {
+    return false;
+  } else {
+    const recordWorkUpdate = await prisma.updateReply.create({
       data: {
         workUpdate: updates,
-      },
-    });
-  } else if (isCheckedOut && !isCheckedOut?.checkOutTime) {
-    const recordWorkUpdate = await prisma.attendenceReply.update({
-      where: {
-        id: isCheckedOut?.id,
-      },
-      data: {
-        workUpdate: updates,
-        checkOutTime: new Date(),
+        updateThreadId: existingThread?.id,
+        userName: user,
       },
     });
   }
@@ -175,6 +202,7 @@ async function recordEarlyLeave(payload) {
 export const AttendenceService = {
   createAttendenceThread,
   recordAttendence,
+  createWorkUpdateThread,
   recordWorkUpdates,
   recordEarlyLeave,
 };

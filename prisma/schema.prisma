@@ -14,8 +14,7 @@ model labbaikBot {
 }
 
 model attendenceThread {
-  id Int @id @default(autoincrement())
-  msg String
+  id Int @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -23,17 +22,28 @@ model attendenceThread {
 }
 
 model attendenceReply {
-  id Int @id @default(autoincrement())
+  id Int @id @unique @default(autoincrement())
   attendenceThreadId Int
   attendenceThread attendenceThread @relation(fields: [attendenceThreadId], references: [id], onDelete: Cascade)
   userName String
   mood String
-  goal String
-  checkInTime DateTime @default(now())
-  workUpdate String?
-  checkOutTime DateTime?
-  earlyLeaveRequest String?
-  earlyLeaveReason String?
+  createdAt DateTime @default(now()) //can be used as checkin time
+  updatedAt DateTime @updatedAt
+}
+
+model updateThread {
+  id Int @id @unique @default(autoincrement())
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updateReply updateReply[]
+}
+
+model updateReply {
+  id Int @id @unique @default(autoincrement())
+  updateThreadId Int
+  updateThread updateThread @relation(fields: [updateThreadId], references: [id], onDelete: Cascade)
+  userName String
+  workUpdate String
+  createdAt DateTime @default(now()) //used as checkout time
   updatedAt DateTime @updatedAt
 }

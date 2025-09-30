@@ -11,9 +11,9 @@ main().catch((err) => console.log(err));
 async function main() {
   try {
     await bootstrapDiscordBot();
-    console.log("🦾bot connected successfully");
+    console.log("bot connected successfully");
     const response = await prisma.$queryRaw`SELECT 1`;
-    console.log("✅ Database connection successful!", response);
+    console.log("Database connection successful!", response);
     startDailyCheckIn();
     startDailyCheckOut();
     server = app.listen(config.port, () => {
@@ -22,7 +22,7 @@ async function main() {
   } catch (error) {
     await prisma.$disconnect();
     console.log(error);
-    console.error("❌ Database connection failed:", error);
+    console.error("Database connection failed:", error);
     process.exit(1);
   }
 }

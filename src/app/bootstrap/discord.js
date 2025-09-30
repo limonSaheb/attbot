@@ -18,6 +18,19 @@ import { AttendenceService } from "../services/attendecne.service.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+function bdtNow() {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric",
+    hour12: true,
+    timeZone: "Asia/Dhaka",
+  }).format(new Date());
+}
+
 export async function bootstrapDiscordBot() {
   const commandsPath = path.join(__dirname, "..", "commands");
   const commandFiles = fs
@@ -42,7 +55,7 @@ export async function bootstrapDiscordBot() {
     try {
       await command.execute(interaction);
     } catch (err) {
-      console.error("❌ Command failed:", err);
+      console.error("Command failed:", err);
       await interaction.reply({
         content: "There was an error executing this command.",
         flags: MessageFlags.Ephemeral,
@@ -83,51 +96,19 @@ export async function bootstrapDiscordBot() {
   discordClient.on(Events.InteractionCreate, async (interaction) => {
     if (
       interaction.isStringSelectMenu() &&
-      interaction.customId === "dailyMoodSelect"
+      interaction.customId === "asg-owl"
     ) {
-      const mood = interaction.values[0];
-
-      const modal = new ModalBuilder()
-        .setCustomId(`dailyGoalModal_${mood}`)
-        .setTitle("What’s your main goal today?");
-
-      const input = new TextInputBuilder()
-        .setCustomId("goalInput")
-        .setLabel("Today’s goal/task")
-        .setStyle(TextInputStyle.Paragraph)
-        .setRequired(true);
-
-      const row = new ActionRowBuilder().addComponents(input);
-      modal.addComponents(row);
-
-      await interaction.showModal(modal);
-    }
-
-    if (
-      interaction.isModalSubmit() &&
-      interaction.customId.startsWith("dailyGoalModal_")
-    ) {
-      const mood = interaction.customId.split("_")[1];
-      const goal = interaction.fields.getTextInputValue("goalInput");
-      const user = interaction.user.displayName;
-      const timestamp = new Date().toLocaleString();
+      const mood = interaction?.values[0];
+      const user = interaction?.user?.displayName;
 
       const recordAttendence = await AttendenceService.recordAttendence({
         user,
         mood,
-        goal,
       });
 
       if (recordAttendence) {
-        console.log("--- Daily Check-In ---");
-        console.log(`User: ${user}`);
-        console.log(`Mood: ${mood}`);
-        console.log(`Goal: ${goal}`);
-        console.log(`Time: ${timestamp}`);
-        console.log("----------------------");
-
         await interaction.reply({
-          content: `✅ Thanks, ${user}! Logged your goal. Best of Luck!`,
+          content: `Thanks, ${user}! Best of Luck!`,
           flags: MessageFlags.Ephemeral,
         });
 
@@ -135,16 +116,29 @@ export async function bootstrapDiscordBot() {
           config.admin_channel_id
         );
 
-        if (!adminChannel) console.log("admin channel not found");
+        if (!adminChannel) console.log("Admin channel not found");
+
+        const now = new Date();
+        const options = {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+          timeZone: "Asia/Dhaka",
+        };
+        const timestamp = new Intl.DateTimeFormat("en-US", options).format(now);
 
         await adminChannel.send({
-          content: `🤓${user} just checked in at ${timestamp}`,
+          content: `${user} just checked in at ${timestamp}`,
         });
       } else {
         await interaction.reply({
-          content: `😏${user} you have already checked in once.`,
+          content: `${user}! You are already checked-IN.`,
           flags: MessageFlags.Ephemeral,
         });
+        return;
       }
     }
   });
@@ -156,7 +150,7 @@ export async function bootstrapDiscordBot() {
         .setTitle("Please! give your work updates.");
 
       const input = new TextInputBuilder()
-        .setCustomId("updattimestampeInput")
+        .setCustomId("updateInput") // fixed ID
         .setLabel("Today's work update 📝")
         .setStyle(TextInputStyle.Paragraph)
         .setRequired(true);
@@ -171,11 +165,9 @@ export async function bootstrapDiscordBot() {
       interaction.isModalSubmit() &&
       interaction.customId === "explainModal"
     ) {
-      const updates = interaction.fields.getTextInputValue(
-        "updattimestampeInput"
-      );
-      const user = interaction.user.username;
-      const timestamp = new Date().toLocaleString();
+      const updates = interaction.fields.getTextInputValue("updateInput");
+      const user = interaction?.user?.displayName;
+      const timestamp = bdtNow();
 
       const recordUpdates = await AttendenceService.recordWorkUpdates({
         updates,
@@ -187,7 +179,7 @@ export async function bootstrapDiscordBot() {
         console.log(`work-update: ${updates}`);
 
         await interaction.reply({
-          content: `Thanks, ${user} for you hard work. Take rest and sleep tight.`,
+          content: `Thanks, ${user} for you hard work. Go Home and sleep tight.`,
           flags: MessageFlags.Ephemeral,
         });
 
@@ -198,12 +190,12 @@ export async function bootstrapDiscordBot() {
         if (!adminChannel) console.log("admin channel not found");
 
         await adminChannel.send({
-          content: `${user} just checked out at ${timestamp}`,
+          content: `${user} just checked out at ${timestamp} \n 📝 ${updates}`,
         });
         return;
       } else {
         await interaction.reply({
-          content: `Something went wrong!⚒️`,
+          content: `${user}You already checked out.`,
           flags: MessageFlags.Ephemeral,
         });
         return;
