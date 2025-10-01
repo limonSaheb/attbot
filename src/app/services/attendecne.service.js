@@ -146,6 +146,8 @@ async function recordWorkUpdates(payload) {
     orderBy: { createdAt: "desc" },
   });
 
+  if (!existingThread) return false;
+
   const isCheckedOut = await prisma.updateReply.findFirst({
     where: {
       updateThreadId: existingThread?.id,
