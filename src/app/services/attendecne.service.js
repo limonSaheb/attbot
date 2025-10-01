@@ -17,13 +17,33 @@ const end = new Date(
   )
 );
 
+function getStart() {
+  return new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0)
+  );
+}
+
+function getEnd() {
+  return new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      23,
+      59,
+      59,
+      999
+    )
+  );
+}
+
 async function createAttendenceThread() {
   try {
     const existingThread = await prisma.attendenceThread.findFirst({
       where: {
         createdAt: {
-          gte: start,
-          lte: end,
+          gte: getStart(),
+          lte: getEnd(),
         },
       },
       orderBy: { createdAt: "desc" },
@@ -49,8 +69,8 @@ async function recordAttendence(payload) {
     const existingThread = await prisma.attendenceThread.findFirst({
       where: {
         createdAt: {
-          gte: start,
-          lte: end,
+          gte: getStart(),
+          lte: getEnd(),
         },
       },
       orderBy: { createdAt: "desc" },
@@ -93,8 +113,8 @@ async function createWorkUpdateThread() {
     const existingThread = await prisma.updateThread.findFirst({
       where: {
         createdAt: {
-          gte: start,
-          lte: end,
+          gte: getStart(),
+          lte: getEnd(),
         },
       },
       orderBy: { createdAt: "desc" },
@@ -119,8 +139,8 @@ async function recordWorkUpdates(payload) {
   const existingThread = await prisma.updateThread.findFirst({
     where: {
       createdAt: {
-        gte: start,
-        lte: end,
+        gte: getStart(),
+        lte: getEnd(),
       },
     },
     orderBy: { createdAt: "desc" },
