@@ -38,7 +38,7 @@ function getEnd() {
 }
 
 async function createAttendenceThread() {
-  console.log(getStart());
+  console.log(getStart(), "attendence create thread");
   try {
     const existingThread = await prisma.attendenceThread.findFirst({
       where: {
@@ -110,6 +110,7 @@ async function recordAttendence(payload) {
 }
 
 async function createWorkUpdateThread() {
+  console.log(getStart(), "update create thread");
   try {
     const existingThread = await prisma.updateThread.findFirst({
       where: {

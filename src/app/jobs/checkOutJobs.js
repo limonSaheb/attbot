@@ -6,7 +6,7 @@ import { AttendenceService } from "../services/attendecne.service.js";
 
 export const startDailyCheckOut = () => {
   cron.schedule(
-    "22 19 * * *",
+    "1 18 * * *",
     async () => {
       try {
         const channel = await discordClient.channels.fetch(
