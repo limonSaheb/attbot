@@ -38,6 +38,7 @@ function getEnd() {
 }
 
 async function createAttendenceThread() {
+  console.log(getStart());
   try {
     const existingThread = await prisma.attendenceThread.findFirst({
       where: {
