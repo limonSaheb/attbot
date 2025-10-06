@@ -2,42 +2,6 @@ import { isDateToday } from "../utlis/commonUtils.js";
 import { getDhakaStartEnd } from "../utlis/dateUtils.js";
 import prisma from "../utlis/prisma.js";
 
-// const now = new Date();
-// const start = new Date(
-//   Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0)
-// );
-// const end = new Date(
-//   Date.UTC(
-//     now.getUTCFullYear(),
-//     now.getUTCMonth(),
-//     now.getUTCDate(),
-//     23,
-//     59,
-//     59,
-//     999
-//   )
-// );
-
-// function getStart() {
-//   return new Date(
-//     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 0, 0, 0)
-//   );
-// }
-
-// function getEnd() {
-//   return new Date(
-//     Date.UTC(
-//       now.getUTCFullYear(),
-//       now.getUTCMonth(),
-//       now.getUTCDate(),
-//       23,
-//       59,
-//       59,
-//       999
-//     )
-//   );
-// }
-
 function getStart() {
   return getDhakaStartEnd().start;
 }
@@ -149,6 +113,41 @@ async function createWorkUpdateThread() {
   }
 }
 
+async function earlyLeaveWorkUpdate(params = {}) {
+  const { user, reason } = params;
+  const start = getStart();
+  const end = getEnd();
+  console.log(getStart(), "update create thread");
+  try {
+    const existingThread = await prisma.updateThread.findFirst({
+      where: {
+        createdAt: {
+          gte: start,
+          lte: end,
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (existingThread) {
+      console.log("Todays update thread is already created.");
+      return false;
+    } else {
+      const createThread = await prisma.updateThread.create({
+        data: {
+          earlyLeave: true,
+          reason: reason,
+          userName: user,
+        },
+      });
+    }
+    return true;
+  } catch (error) {
+    console.log("There was an error!", error?.message);
+    return false;
+  }
+}
+
 async function recordWorkUpdates(payload) {
   const start = getStart();
   const end = getEnd();
@@ -245,6 +244,7 @@ export const AttendenceService = {
   createAttendenceThread,
   recordAttendence,
   createWorkUpdateThread,
+  earlyLeaveWorkUpdate,
   recordWorkUpdates,
   recordEarlyLeave,
 };

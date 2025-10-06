@@ -33,6 +33,9 @@ model attendenceReply {
 
 model updateThread {
   id Int @id @unique @default(autoincrement())
+  earlyLeave Boolean?
+  reason String?
+  userName String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   updateReply updateReply[]
