@@ -349,10 +349,13 @@ export async function bootstrapDiscordBot() {
       /** --- Select Menu Interactions --- */
       if (interaction.isStringSelectMenu()) {
         if (interaction.customId === "asg-owl") {
+          // IMMEDIATE acknowledgment for select menus
           await interaction.deferReply({ ephemeral: true });
 
           const mood = interaction.values[0];
           const user = interaction.user.displayName;
+
+          // Process the attendance (this can take time)
           const recordAttendence = await AttendenceService.recordAttendence({
             user,
             mood,
@@ -382,17 +385,18 @@ export async function bootstrapDiscordBot() {
         }
 
         if (interaction.customId === "feedbackSelect") {
-          // Store selected value temporarily if needed
-          return interaction.reply({
+          await interaction.reply({
             content: `You selected: ${interaction.values[0]}`,
             flags: MessageFlags.Ephemeral,
           });
+          return;
         }
       }
 
       /** --- Modal Submissions --- */
       if (interaction.isModalSubmit()) {
-        await interaction.deferReply({ ephemeral: true }); // Always defer to avoid timeouts
+        // CRITICAL: Defer reply immediately for modal submissions
+        await interaction.deferReply({ ephemeral: true });
 
         if (interaction.customId === "feedbackModal") {
           const feedback =
@@ -408,6 +412,9 @@ export async function bootstrapDiscordBot() {
           const user = interaction.user.displayName;
           const timestamp = bdtNow();
 
+          console.log(`${user} checked out at ${timestamp}.`);
+          console.log(`work-update: ${updates}`);
+
           const recordUpdates = await AttendenceService.recordWorkUpdates({
             updates,
             user,
@@ -415,16 +422,18 @@ export async function bootstrapDiscordBot() {
 
           if (recordUpdates) {
             await interaction.editReply({
-              content: `Thanks, ${user}! Your hard work is appreciated.`,
+              content: `Thanks, ${user} for your hard work. Go Home and sleep tight.`,
             });
 
             const adminChannel = await discordClient.channels.fetch(
               config.admin_channel_id
             );
-            if (adminChannel)
-              await adminChannel.send(
-                `${user} just checked out at ${timestamp}\n📝 ${updates}`
-              );
+
+            if (adminChannel) {
+              await adminChannel.send({
+                content: `${user} just checked out at ${timestamp} \n 📝 ${updates}`,
+              });
+            }
           } else {
             await interaction.editReply({
               content: `${user}, you already checked out.`,
@@ -437,6 +446,7 @@ export async function bootstrapDiscordBot() {
           const user = interaction.user.username;
           const reason =
             interaction.fields.getTextInputValue("earlyLeaveReason");
+
           const requestEarlyLeave = await AttendenceService.recordEarlyLeave({
             user,
             reason,
