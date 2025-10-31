@@ -373,7 +373,7 @@ export async function bootstrapDiscordBot() {
             if (adminChannel) {
               const timestamp = bdtNow();
               await adminChannel.send(
-                `${user} just checked in at ${timestamp}`
+                `${user} just checked in at ${timestamp} and feeling ${mood}`
               );
             }
           } else {
