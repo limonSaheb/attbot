@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_DATABASE_URL")
+}
+
+model labbaikBot {
+  id        Int      @id @default(autoincrement())
+  version   Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
+model attendenceThread {
+  id Int @id @unique @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendenceReply attendenceReply[]
+}
+
+model attendenceReply {
+  id Int @id @unique @default(autoincrement())
+  attendenceThreadId Int
+  attendenceThread attendenceThread @relation(fields: [attendenceThreadId], references: [id], onDelete: Cascade)
+  userName String
+  mood String
+  createdAt DateTime @default(now()) //can be used as checkin time
+  updatedAt DateTime @updatedAt
+}
+
+model updateThread {
+  id Int @id @unique @default(autoincrement())
+  earlyLeave Boolean?
+  reason String?
+  userName String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  updateReply updateReply[]
+}
+
+model updateReply {
+  id Int @id @unique @default(autoincrement())
+  updateThreadId Int
+  updateThread updateThread @relation(fields: [updateThreadId], references: [id], onDelete: Cascade)
+  userName String
+  workUpdate String
+  createdAt DateTime @default(now()) //used as checkout time
+  updatedAt DateTime @updatedAt
+}
