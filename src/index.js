@@ -20,15 +20,18 @@ async function main() {
       console.log(`Server is Running http://localhost:${config.port}`);
     });
   } catch (error) {
-    await prisma.$disconnect();
+    try {
+      await prisma.$disconnect();
+    } catch {}
     console.log(error);
     console.error("Database connection failed:", error);
     process.exit(1);
   }
 }
 
-process.on("unhandledRejection", () => {
+process.on("unhandledRejection", (reason) => {
   console.log("Unhandled Rejection is detected , shutting down ...");
+  console.log(reason);
   //For Asynchronous operations
   if (server) {
     server.close(() => {
