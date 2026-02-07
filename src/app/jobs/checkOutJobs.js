@@ -6,11 +6,11 @@ import { AttendenceService } from "../services/attendecne.service.js";
 
 export const startDailyCheckOut = () => {
   cron.schedule(
-    "15 18 * * 1-6",
+    "1 16 * * 1-6",
     async () => {
       try {
         const channel = await discordClient.channels.fetch(
-          config.update_channel_id
+          config.update_channel_id,
         );
 
         if (!channel) return console.error("Check-out channel not found!");
@@ -37,6 +37,6 @@ export const startDailyCheckOut = () => {
     },
     {
       timezone: "Asia/Dhaka",
-    }
+    },
   );
 };
