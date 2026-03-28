@@ -18,6 +18,23 @@ import { AttendenceService } from "../services/attendecne.service.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+const calculateOvertime = (checkoutTime) => {
+  const checkout = new Date(checkoutTime);
+
+  const standardLeave = new Date(checkout);
+  standardLeave.setHours(17, 0, 0, 0);
+
+  if (checkout <= standardLeave) {
+    return 0;
+  }
+
+  const diffMs = checkout - standardLeave;
+
+  const minutes = Math.floor(diffMs / (1000 * 60));
+
+  return minutes;
+};
+
 function bdtNow() {
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
@@ -140,8 +157,11 @@ export async function bootstrapDiscordBot() {
           const updates = interaction.fields.getTextInputValue("updateInput");
           const user = interaction.user.displayName;
           const timestamp = bdtNow();
+          const overtimeMinutes = calculateOvertime(timestamp);
 
-          console.log(`${user} checked out at ${timestamp}.`);
+          console.log(
+            `${user} checked out at ${timestamp}. Overtime ${overtimeMinutes} minutes`,
+          );
           console.log(`work-update: ${updates}`);
 
           const recordUpdates = await AttendenceService.recordWorkUpdates({
@@ -160,7 +180,7 @@ export async function bootstrapDiscordBot() {
 
             if (adminChannel) {
               await adminChannel.send({
-                content: `${user} just checked out at ${timestamp} \n 📝 ${updates}`,
+                content: `${user} just checked out at ${timestamp}, Overtime ${overtimeMinutes} minutes. \n 📝 ${updates}`,
               });
             }
           } else {
