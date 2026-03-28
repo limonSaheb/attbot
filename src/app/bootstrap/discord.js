@@ -180,7 +180,7 @@ export async function bootstrapDiscordBot() {
 
             if (adminChannel) {
               await adminChannel.send({
-                content: `${user} just checked out at ${timestamp}, Overtime ${overtimeMinutes} minutes. \n 📝 ${updates}`,
+                content: `${user} just checked out at ${timestamp},  \n 📝 ${updates}`,
               });
             }
           } else {
